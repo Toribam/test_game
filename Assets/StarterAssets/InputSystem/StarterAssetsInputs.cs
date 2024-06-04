@@ -12,6 +12,7 @@ namespace StarterAssets
 		public Vector2 look;
 		public bool jump;
 		public bool sprint;
+		public bool crouch;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -43,6 +44,12 @@ namespace StarterAssets
 		{
 			SprintInput(value.isPressed);
 		}
+
+		public void OnCrouch(InputValue value)
+		{
+			CrouchInput(value.isPressed);
+		}
+
 #endif
 
 
@@ -74,6 +81,11 @@ namespace StarterAssets
 		private void SetCursorState(bool newState)
 		{
 			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
+		}
+
+		private void CrouchInput(bool newCrouchState)
+		{
+			crouch = newCrouchState;
 		}
 	}
 	
