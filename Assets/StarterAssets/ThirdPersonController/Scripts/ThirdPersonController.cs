@@ -14,12 +14,27 @@ namespace StarterAssets
 #endif
     public class ThirdPersonController : MonoBehaviour
     {
+        // Standing and crouching status
         [Header("Player")]
+        // Standing
+        [Header("Standing")]
+        [Tooltip("Walk and run parameters")]
+        public bool standing = true;
         [Tooltip("Move speed of the character in m/s")]
         public float MoveSpeed = 2.0f;
 
         [Tooltip("Sprint speed of the character in m/s")]
         public float SprintSpeed = 5.335f;
+        
+        // Crouching
+        [Header("Crouching")]
+        [Tooltip("Crouching status parameters")]
+        public bool crouching = false;
+        [Tooltip("when crouching move speed of the character in m/s")]
+        public float CrouchingSpeed = 1.4f;
+        [Tooltip("when crouching sprint speed of the character in m/s")]
+        public float CrouchingSprint = 1.8f;
+
 
         [Tooltip("How fast the character turns to face movement direction")]
         [Range(0.0f, 0.3f)]
