@@ -1,4 +1,5 @@
-﻿ using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
 #endif
@@ -14,8 +15,10 @@ namespace StarterAssets
 #endif
     public class ThirdPersonController : MonoBehaviour
     {
+
         // Standing and crouching status
         [Header("Player")]
+        // public float height;
         // Standing
         [Header("Standing status")]
         [Tooltip("Walk and run parameters")]
@@ -25,15 +28,19 @@ namespace StarterAssets
 
         [Tooltip("Sprint speed of the character in m/s")]
         public float SprintSpeed = 5.335f;
+        [Tooltip("Standing pose height")]
+        public float standingHeight = 1.8f;
         
         // Crouching
         [Header("Crouching status")]
         [Tooltip("Crouching status parameters")]
         public bool CrouchingPosition = false;
         [Tooltip("when crouching move speed of the character in m/s")]
-        public float CrouchingSpeed = 1.2f;
+        public float CrouchingMoveSpeed = 1.2f;
         [Tooltip("when crouching sprint speed of the character in m/s")]
         public float CrouchingSprint = 1.8f;
+        [Tooltip("Standing pose height")]
+        public float crouchingHeight = 1f;
 
 
         [Tooltip("How fast the character turns to face movement direction")]
@@ -159,6 +166,10 @@ namespace StarterAssets
             _hasAnimator = TryGetComponent(out _animator);
             _controller = GetComponent<CharacterController>();
             _input = GetComponent<StarterAssetsInputs>();
+
+            // added
+            _controller.height = standingHeight;
+
 #if ENABLE_INPUT_SYSTEM 
             _playerInput = GetComponent<PlayerInput>();
 #else
@@ -237,7 +248,7 @@ namespace StarterAssets
         {
             // sprint speed by standing or crouching
             float bySprint = StandingPosition ? SprintSpeed : CrouchingSprint;
-            float byMove = StandingPosition ? MoveSpeed : CrouchingSpeed;
+            float byMove = StandingPosition ? MoveSpeed : CrouchingMoveSpeed;
             // set target speed based on move speed, sprint speed and if sprint is pressed
             float targetSpeed = _input.sprint ? bySprint : byMove;
             // float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
@@ -415,6 +426,8 @@ namespace StarterAssets
             }
         }
 
+
+        // crouch function
         private void OnCrouch()
         {
             if (Grounded)
@@ -426,27 +439,41 @@ namespace StarterAssets
                     _animator.SetBool(_animIDFreeFall, false);
                 }
 
-                // standing -> crouching
-                if (_input.crouch && StandingPosition == true && CrouchingPosition == false)
-                {
-                    StandingPosition = false;
-                    CrouchingPosition = true;
-                    if (_hasAnimator)
-                    {
-                        _animator.SetBool(_animIDCrouch, true);
-                        _animator.SetBool(_animIDStand, false);
-                    }
-                }
-                
                 // crouching -> standing
-                else if (_input.crouch && StandingPosition == false && CrouchingPosition == true)
+                if (_input.crouch && StandingPosition == false && CrouchingPosition == true)
                 {
                     StandingPosition = true;
                     CrouchingPosition = false;
+
+                    // height
+                    _controller.height = standingHeight;
+                    // center
+                    _controller.center = _controller.center * 2;
+                    // edit!
                     if (_hasAnimator)
                     {
                         _animator.SetBool(_animIDCrouch, false);
                         _animator.SetBool(_animIDStand, true);
+                    }
+                }
+
+                // standing -> crouching
+                else if (_input.crouch && StandingPosition == true && CrouchingPosition == false)
+                {
+                    StandingPosition = false;
+                    CrouchingPosition = true;
+
+                    // height
+                    _controller.height = crouchingHeight;
+                    // center
+                    _controller.center = _controller.center / 2;
+
+                    // adjusting transform
+
+                    if (_hasAnimator)
+                    {
+                        _animator.SetBool(_animIDCrouch, true);
+                        _animator.SetBool(_animIDStand, false);
                     }
                 }
             }
