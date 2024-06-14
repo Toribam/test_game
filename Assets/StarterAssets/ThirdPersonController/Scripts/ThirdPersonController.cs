@@ -24,12 +24,12 @@ namespace StarterAssets
         [Tooltip("Walk and run parameters")]
         public bool StandingPosition = true;
         [Tooltip("Move speed of the character in m/s")]
-        public float MoveSpeed = 2.0f;
+        public float MoveSpeed = 3.0f;
 
         [Tooltip("Sprint speed of the character in m/s")]
-        public float SprintSpeed = 5.335f;
+        public float SprintSpeed = 6f;
         [Tooltip("Standing pose height")]
-        public float standingHeight = 1.8f;
+        private float standingHeight = 1.8f;
         
         // Crouching
         [Header("Crouching status")]
@@ -38,9 +38,9 @@ namespace StarterAssets
         [Tooltip("when crouching move speed of the character in m/s")]
         public float CrouchingMoveSpeed = 1.2f;
         [Tooltip("when crouching sprint speed of the character in m/s")]
-        public float CrouchingSprint = 1.8f;
+        public float CrouchingSprint = 2f;
         [Tooltip("Standing pose height")]
-        public float crouchingHeight = 1f;
+        private float crouchingHeight = 1f;
 
 
         [Tooltip("How fast the character turns to face movement direction")]
@@ -430,51 +430,41 @@ namespace StarterAssets
         // crouch function
         private void OnCrouch()
         {
-            if (Grounded)
+            // standing -> crouching
+            if (_input.crouch && StandingPosition == true && CrouchingPosition == false)
             {
-                // check jumping or falling state
+                StandingPosition = false;
+                CrouchingPosition = true;
+
+                // height
+                _controller.height = crouchingHeight;
+                // center
+                _controller.center = _controller.center / 2;
+
+                // adjusting transform
+
                 if (_hasAnimator)
                 {
-                    _animator.SetBool(_animIDJump, false);
-                    _animator.SetBool(_animIDFreeFall, false);
+                    _animator.SetBool(_animIDCrouch, true);
+                    _animator.SetBool(_animIDStand, false);
                 }
+            }
 
-                // crouching -> standing
-                if (_input.crouch && StandingPosition == false && CrouchingPosition == true)
+            // crouching -> standing
+            else if (_input.crouch && StandingPosition == false && CrouchingPosition == true)
+            {
+                StandingPosition = true;
+                CrouchingPosition = false;
+
+                // height
+                _controller.height = standingHeight;
+                // center
+                _controller.center = _controller.center * 2;
+                // edit!
+                if (_hasAnimator)
                 {
-                    StandingPosition = true;
-                    CrouchingPosition = false;
-
-                    // height
-                    _controller.height = standingHeight;
-                    // center
-                    _controller.center = _controller.center * 2;
-                    // edit!
-                    if (_hasAnimator)
-                    {
-                        _animator.SetBool(_animIDCrouch, false);
-                        _animator.SetBool(_animIDStand, true);
-                    }
-                }
-
-                // standing -> crouching
-                else if (_input.crouch && StandingPosition == true && CrouchingPosition == false)
-                {
-                    StandingPosition = false;
-                    CrouchingPosition = true;
-
-                    // height
-                    _controller.height = crouchingHeight;
-                    // center
-                    _controller.center = _controller.center / 2;
-
-                    // adjusting transform
-
-                    if (_hasAnimator)
-                    {
-                        _animator.SetBool(_animIDCrouch, true);
-                        _animator.SetBool(_animIDStand, false);
-                    }
+                    _animator.SetBool(_animIDCrouch, false);
+                    _animator.SetBool(_animIDStand, true);
                 }
             }
         }
